@@ -4,8 +4,7 @@ Set up GPU passthrough on Debain &amp; Ubuntu hosts.
 
 ## CAUTION
 
-- This script will modify `/etc/default/grub` and could cause your machien to become unbootable.
-Do not run this script on a machine you are not willing to re-image.
+- This script will modify `/etc/default/grub` and could cause your machine to enter and un-recoverable state. Do not run this script on a machine you are not willing to re-image.
 
 - This script has only been tested on Intel and Nvidia hardware. 
 
