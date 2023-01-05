@@ -8,6 +8,8 @@ Set up GPU passthrough on Debain &amp; Ubuntu hosts.
 
 - This script has only been tested on Intel and Nvidia hardware. 
 
+- Do not install your GPU drivers on the host machine unless you are using a laptop with Nvidia Prime/Optimus.
+
 ## Usage
 
 1. Enable IOMMU in grub
