@@ -8,6 +8,44 @@ Set up GPU passthrough on Debain &amp; Ubuntu hosts.
 
 - This script has only been tested on Intel and Nvidia hardware. 
 
+## Usage
+
+1. Enable IOMMU in grub
+
+    ```bash
+    # /etc/default/grub
+    GRUB_DEFAULT=0
+    GRUB_TIMEOUT=5
+    GRUB_DISTRIBUTOR=`lsb_release -i -s 2> /dev/null || echo Debian`
+    GRUB_CMDLINE_LINUX_DEFAULT="quiet preempt=voluntary iommu=pt amd_iommu=on intel_iommu=on"
+    GRUB_CMDLINE_LINUX=""
+    ```
+2. Update grub and reboot
+
+    ```bash
+    sudo update-grub
+    sudo reboot now
+    ``` 
+    
+3. Download and run `setup.sh`
+
+    ```bash
+    # Set up GPU passthrough
+    bash setup.sh full_run NVIDIA
+
+    # Reset 
+    bash setup.sh reset
+    ```
+
+4. Reboot the machine
+
+
+5. You are now ready to present the GPU to your VMM. An example using QEMU:
+
+    ```bash
+    -device vfio-pci,host=02:00.0,multifunction=on,x-vga=on
+    ```
+
 
 ## Resources and Help
 
