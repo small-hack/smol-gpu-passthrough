@@ -3,6 +3,7 @@
 set -o pipefail
 set -o errexit
 
+# Installs the required applications needed for all of this to work
 deps(){
     sudo apt-get -y install \
       qemu-kvm \
@@ -14,6 +15,7 @@ deps(){
 }
 
 # credit goes to leduccc for this stanza.
+# It builds a data blob of all iommu groups
 # source: https://leduccc.medium.com/simple-dgpu-passthrough-on-a-dell-precision-7450-ebe65b2e648e
 get_iommu_data(){
     shopt -s nullglob
@@ -127,6 +129,7 @@ full_run(){
       echo "Missing required argument for get_iommu_ids <VENDOR NAME>, use a vendor name like 'NVIDIA', 'AMD', or 'Intel'."
       exit
     fi
+    
     deps
     generate_kernel_params $1
     write_grub
