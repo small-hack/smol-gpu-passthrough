@@ -43,6 +43,11 @@ Set up GPU passthrough on Debain &amp; Ubuntu hosts.
 5. You are now ready to present the GPU to your VMM. An example using QEMU:
 
     ```bash
+    > lspci |grep -ai nvidia |grep VGA | awk '{print $1}'
+    > 02:00.0
+    ```
+    
+    ```bash
     -device vfio-pci,host=02:00.0,multifunction=on,x-vga=on
     ```
 
