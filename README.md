@@ -1,4 +1,4 @@
-# smol-gpu-passthrough
+# smol-gpu-passthrough (w.i.p)
 
 Set up GPU passthrough on Debain &amp; Ubuntu hosts.
 
