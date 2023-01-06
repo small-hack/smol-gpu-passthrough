@@ -62,13 +62,14 @@ get_iommu_ids(){
 # create config files in local dir then move into place
 make_configs(){
 
-sudo mkdir -p "/etc/initram-fs"
+sudo mkdir -p "/etc/initramfs-tools"
 
 cat > $(pwd)/modules <<EOF
 vfio
 vfio_iommu_type1
 vfio_pci
 vfio_virqfd
+options vfio-pci ids=$VFIO_PCI_IDS
 EOF
 
 cat > $(pwd)/local.conf <<EOF
@@ -76,11 +77,16 @@ options vfio-pci ids=$VFIO_PCI_IDS
 options vfio-pci disable_vga=1
 EOF
 
-# /etc/initramfs-tools/modules on debian
-sudo mv $(pwd)/modules /etc/initram-fs/modules
+# Debian
+sudo mv $(pwd)/modules /etc/initramfs-tools/modules
 
-# nano /etc/modprobe.d/blacklist.conf on bebian
-sudo mv $(pwd)/local.conf /etc/modprobe.d/local.conf
+# ubuntu
+# sudo mv $(pwd)/modules /etc/initram-fs/modules
+
+# Debian
+sudo mv $(pwd)/local.conf /etc/modprobe.d/blacklist.conf 
+# Ubuntu
+#sudo mv $(pwd)/local.conf /etc/modprobe.d/local.conf
 }
 
 # reset grub to a blank defaults line
