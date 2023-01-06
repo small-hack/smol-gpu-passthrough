@@ -50,7 +50,19 @@ Set up GPU passthrough on Debain &amp; Ubuntu hosts.
     ```
     
     ```bash
-    -device vfio-pci,host=02:00.0,multifunction=on,x-vga=on
+    sudo qemu-system-x86_64 -machine accel=kvm,type=q35 \
+        -cpu host,kvm=off,hv_vendor_id=null \
+        -smp 4,sockets=1,cores=2,threads=2,maxcpus=4 \
+        -m 8G \
+        -vga virtio -serial stdio -parallel none \
+        -device vfio-pci,host=02:00.0,multifunction=on,x-vga=on \
+        -netdev user,id=network0,hostfwd=tcp::1234-:22 \
+        -device virtio-net-pci,netdev=network0 \
+        -drive if=virtio,format=qcow2,file=disk.qcow2,index=1,media=disk \
+        -drive if=virtio,format=raw,file=seed.img,index=0,media=disk \
+        -bios /usr/share/ovmf/OVMF.fd \
+        -usbdevice tablet \
+        -vnc 192.168.50.100:0
     ```
 
 
