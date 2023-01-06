@@ -76,7 +76,10 @@ options vfio-pci ids=$VFIO_PCI_IDS
 options vfio-pci disable_vga=1
 EOF
 
+# /etc/initramfs-tools/modules on debian
 sudo mv $(pwd)/modules /etc/initram-fs/modules
+
+# nano /etc/modprobe.d/blacklist.conf on bebian
 sudo mv $(pwd)/local.conf /etc/modprobe.d/local.conf
 }
 
