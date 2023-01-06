@@ -72,7 +72,7 @@ vfio_virqfd
 options vfio-pci ids=$VFIO_PCI_IDS
 EOF
 
-cat > $(pwd)/local.conf <<EOF
+cat > $(pwd)/blacklist.conf <<EOF
 options vfio-pci ids=$VFIO_PCI_IDS
 options vfio-pci disable_vga=1
 EOF
@@ -84,9 +84,9 @@ sudo mv $(pwd)/modules /etc/initramfs-tools/modules
 # sudo mv $(pwd)/modules /etc/initram-fs/modules
 
 # Debian
-sudo mv $(pwd)/local.conf /etc/modprobe.d/blacklist.conf 
+sudo mv $(pwd)/blacklist.conf /etc/modprobe.d/blacklist.conf 
 # Ubuntu
-#sudo mv $(pwd)/local.conf /etc/modprobe.d/local.conf
+#sudo mv $(pwd)/blacklist.conf /etc/modprobe.d/local.conf
 }
 
 # reset grub to a blank defaults line
