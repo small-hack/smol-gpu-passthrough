@@ -3,8 +3,8 @@
 set -o pipefail
 set -o errexit
 
-lsb_release -d | awk -F"\t" '{print $2}' |grep -cai ubuntu
-lsb_release -d | awk -F"\t" '{print $2}' |grep -cai debian
+#lsb_release -d | awk -F"\t" '{print $2}' |grep -cai ubuntu
+#lsb_release -d | awk -F"\t" '{print $2}' |grep -cai debian
 
 # Installs the required applications needed for all of this to work
 deps(){
