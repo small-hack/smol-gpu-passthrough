@@ -77,7 +77,6 @@ EOF
 
 cat > $(pwd)/blacklist.conf <<EOF
 options vfio-pci ids=$VFIO_PCI_IDS
-options vfio-pci disable_vga=1
 EOF
 
 cat > $(pwd)/ xhci_hcd.conf<<EOF
