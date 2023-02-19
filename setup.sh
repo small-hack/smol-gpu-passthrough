@@ -3,6 +3,9 @@
 set -o pipefail
 set -o errexit
 
+lsb_release -d | awk -F"\t" '{print $2}' |grep -cai ubuntu
+lsb_release -d | awk -F"\t" '{print $2}' |grep -cai debian
+
 # Installs the required applications needed for all of this to work
 deps(){
     sudo apt-get -y install \
@@ -77,6 +80,10 @@ options vfio-pci ids=$VFIO_PCI_IDS
 options vfio-pci disable_vga=1
 EOF
 
+cat > $(pwd)/ xhci_hcd.conf<<EOF
+blacklist xhci_hcd
+EOF
+
 # Debian
 sudo mv $(pwd)/modules /etc/initramfs-tools/modules
 
@@ -84,7 +91,8 @@ sudo mv $(pwd)/modules /etc/initramfs-tools/modules
 # sudo mv $(pwd)/modules /etc/initram-fs/modules
 
 # Debian
-sudo mv $(pwd)/blacklist.conf /etc/modprobe.d/blacklist.conf 
+sudo mv $(pwd)/blacklist.conf /etc/modprobe.d/blacklist.conf
+sudo mv $(pwd)/xhci_hcd.conf /etc/modprobe.d/xhci_hcd.conf
 # Ubuntu
 #sudo mv $(pwd)/blacklist.conf /etc/modprobe.d/local.conf
 }
