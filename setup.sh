@@ -79,7 +79,7 @@ cat > $(pwd)/blacklist.conf <<EOF
 options vfio-pci ids=$VFIO_PCI_IDS
 EOF
 
-cat > $(pwd)/ xhci_hcd.conf<<EOF
+cat > $(pwd)/xhci_hcd.conf<<EOF
 blacklist xhci_hcd
 EOF
 
