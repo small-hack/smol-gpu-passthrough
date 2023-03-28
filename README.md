@@ -1,4 +1,4 @@
-# smol-gpu-passthrough 
+# Smol-GPU-Passthrough 
 
 Set up GPU passthrough on Debain &amp; Ubuntu hosts.
 
@@ -65,14 +65,14 @@ Set up GPU passthrough on Debain &amp; Ubuntu hosts.
         -vnc 192.168.50.100:0
     ```
 
-## Walkthrough
+## Slow-Start
 
 This is a long-form explanation of the `setup.sh` script that explains the underlying automation process. It is assumed that the reader has a fresh install of Debian 12 (no gui), or Ubuntnu Server and is using a NVIDIA GPU and an x86_64 Intel CPU. 
 
 - AMD devices have NOT been tested. 
 - ARM devices have NOT been tested.
 
-## Enabling IOMMU
+### Enabling IOMMU
 
  - Enable IOMMU by changing the `GRUB_CMDLINE_LINUX_DEFAULT` line in your `/etc/default/grub` file to the following:
 
@@ -99,7 +99,7 @@ This is a long-form explanation of the `setup.sh` script that explains the under
  - Reboot (Required)
 
 
-## Gathering IOMMU data
+### Gathering IOMMU data
 
   Now that IOMMU is enabled we can look for devices in `/sys/kernel/iommu_groups`. The formatting is awful by default so here is a small script to list it in a more readable way courtesy of leduccc.medium.com 
 
@@ -143,7 +143,7 @@ This is a long-form explanation of the `setup.sh` script that explains the under
 </details>
 
 
-## Enable VFIO-PCI and disable conflicting kernel modules
+### Enable VFIO-PCI and disable conflicting kernel modules
 
 In order to pass control of the GPU to the VM we will need to hand over control of the PCI devices to VFIO. This only works though if VFIO has control of ALL items in the GPU's IOMMU group.
 
@@ -172,7 +172,7 @@ In order to pass control of the GPU to the VM we will need to hand over control 
    - Now run `sudo update-grub`, `sudo update-initramfs -u`, `sudo depmod -ae` and then reboot. (Required)
 
 
-## Disabling conflicting kernel drivers
+### Disabling conflicting kernel drivers
 
 A common issue I have seen others encounter with this process is that VFIO is not given control of all devices in the GPU's IOMMU group. Most often this is due to the xhci_hcd USB module retaining control of the GPU's USB controller. 
 
@@ -191,7 +191,7 @@ So I will now edit/create `/etc/modprobe.d/xhci_hcd.conf` to contain
 Then I will run `sudo update-initramfs -u`, `sudo depmod -ae` and reboot. (Required)
 
 
-## Verify VFIO control over PCI Devices
+### Verify VFIO control over PCI Devices
 
    After your machien reboots, run `lspci -nnk` to show which kernel driver has control over each PCI device. All devices should show `vfio-pci` as the kernel driver in use. If not, you will need to repeat the previous steps to disable that driver.
 
@@ -246,11 +246,11 @@ GPU Passthrough resources:
   | Cale Rogers | 2016 | Intel | Nvidia | Ubuntu 16.04 | GRUB_CMDLINE_LINUX and /etc/initram-fs/modules|/etc/modprobe.d/local.conf|
   | Adam Gradzki | 2020 | Intel | Intel | ?? | ---| created by i915-GVTg_V5_2 |
 
-Cloud-Init Resources:
+## Cloud-Init Resources:
 
 - [My Magical Adventure With cloud-init](https://christine.website/blog/cloud-init-2021-06-04) - Xe Iaso
 
-Hypervisor Resources:
+## Hypervisor Resources:
 
 - [A Study of Performance and Security Across the Virtualization Spectrum](https://repository.tudelft.nl/islandora/object/uuid:34b3732e-2960-4374-94a2-1c1b3f3c4bd5/datastream/OBJ/download) - Vincent van Rijn
 
