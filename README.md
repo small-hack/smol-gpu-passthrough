@@ -1,4 +1,4 @@
-# Smol-GPU-Passthrough 
+# GPU-Passthrough using OVMF + VFIO/IOMMU
 
 Set up GPU passthrough on Debain &amp; Ubuntu hosts.
 
