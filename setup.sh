@@ -1,10 +1,6 @@
 #!/bin/bash
-
 set -o pipefail
 set -o errexit
-
-#lsb_release -d | awk -F"\t" '{print $2}' |grep -cai ubuntu
-#lsb_release -d | awk -F"\t" '{print $2}' |grep -cai debian
 
 # Installs the required applications needed for all of this to work
 deps(){
@@ -65,7 +61,6 @@ get_iommu_ids(){
 # create config files in local dir then move into place
 make_configs(){
 
-sudo mkdir -p "/etc/initramfs-tools"
 
 cat > $(pwd)/modules <<EOF
 vfio
@@ -79,21 +74,23 @@ cat > $(pwd)/blacklist.conf <<EOF
 options vfio-pci ids=$VFIO_PCI_IDS
 EOF
 
-cat > $(pwd)/xhci_hcd.conf<<EOF
+cat > $(pwd)/xhci_hcd.conf <<EOF
 blacklist xhci_hcd
 EOF
 
-# Debian
-sudo mv $(pwd)/modules /etc/initramfs-tools/modules
+    if [ "$1" == "debian" ]; then
+        sudo mkdir -p "/etc/initramfs-tools"
+        sudo cp $(pwd)/modules /etc/initramfs-tools/modules
+        sudo cp $(pwd)/blacklist.conf /etc/modprobe.d/blacklist.conf
+        sudo cp $(pwd)/xhci_hcd.conf /etc/modprobe.d/xhci_hcd.conf
+    fi
 
-# ubuntu
-# sudo mv $(pwd)/modules /etc/initram-fs/modules
+    if [ "$1" == "ubuntu" ]; then
+        sudo mkdir -p "/etc/initramfs-tools"
+        sudo cp $(pwd)/modules /etc/initramfs-tools/modules
+        sudo cp $(pwd)/blacklist.conf /etc/modprobe.d/local.conf
+    fi
 
-# Debian
-sudo mv $(pwd)/blacklist.conf /etc/modprobe.d/blacklist.conf
-sudo mv $(pwd)/xhci_hcd.conf /etc/modprobe.d/xhci_hcd.conf
-# Ubuntu
-#sudo mv $(pwd)/blacklist.conf /etc/modprobe.d/local.conf
 }
 
 # reset grub to a blank defaults line
@@ -103,27 +100,29 @@ reset_grub(){
 
 # generate all our names, strings, and grab the IDs we need
 generate_kernel_params(){
-export IOMMU="pt"
-export AMD_IOMMU="on"
-export I915_ENABLE_GVT="1"
-export INTEL_IOMMU="on"
-export PREEMPT="voluntary"
-export VFIO_PCI_IDS=$(get_iommu_ids "$1")
-export KVM_IGNORE_MSRS="1"
-export KVM_REPORT_IGNORED_MSRS="0"
-export RD_DRIVER_PRE="vfio-pci"
-export VIDEO_FLAG="efifb:off"
-export CURRENT_GRUB_STRING=$(cat /etc/default/grub |grep GRUB_CMDLINE_LINUX_DEFAULT | sed -e 's/GRUB_CMDLINE_LINUX_DEFAULT=//g' | sed -e 's/"//g')
-export GRUB_CMDLINE_LINUX_DEFAULT="GRUB_CMDLINE_LINUX_DEFAULT=\"${CURRENT_GRUB_STRING} \
-vfio-pci.ids="$VFIO_PCI_IDS" \
-amd_iommu="$AMD_IOMMU" \
-i915.enable_gvt="$I915_ENABLE_GVT" \
-intel_iommu="$INTEL_IOMMU" \
-rd.driver.pre="$RD_DRIVER_PRE" \
-video="$VIDEO_FLAG" \
-kvm.ignore_msrs="$KVM_IGNORE_MSRS" \
-kvm.report_ignored_msrs="$KVM_REPORT_IGNORED_MSRS" \
-preempt="$PREEMPT"\""
+        export IOMMU="pt"
+        export AMD_IOMMU="on"
+        export I915_ENABLE_GVT="1"
+        export INTEL_IOMMU="on"
+        export PREEMPT="voluntary"
+        export VFIO_PCI_IDS=$(get_iommu_ids "$1")
+        export KVM_IGNORE_MSRS="1"
+        export KVM_REPORT_IGNORED_MSRS="0"
+        export RD_DRIVER_PRE="vfio-pci"
+        export VIDEO_FLAG="efifb:off"
+
+        export CURRENT_GRUB_STRING=$(cat /etc/default/grub |grep GRUB_CMDLINE_LINUX_DEFAULT | sed -e 's/GRUB_CMDLINE_LINUX_DEFAULT=//g' | sed -e 's/"//g')
+
+        export GRUB_CMDLINE_LINUX_DEFAULT="GRUB_CMDLINE_LINUX_DEFAULT=\"${CURRENT_GRUB_STRING} \
+        vfio-pci.ids="$VFIO_PCI_IDS" \
+        amd_iommu="$AMD_IOMMU" \
+        i915.enable_gvt="$I915_ENABLE_GVT" \
+        intel_iommu="$INTEL_IOMMU" \
+        rd.driver.pre="$RD_DRIVER_PRE" \
+        video="$VIDEO_FLAG" \
+        kvm.ignore_msrs="$KVM_IGNORE_MSRS" \
+        kvm.report_ignored_msrs="$KVM_REPORT_IGNORED_MSRS" \
+        preempt="$PREEMPT"\""
 }
 
 # write the new grub line
@@ -139,28 +138,48 @@ write_grub(){
 }
 
 # run the full script
-full_run(){
+full(){
 
     if [ -z "$1" ]; then
       echo "Missing required argument for get_iommu_ids <VENDOR NAME>, use a vendor name like 'NVIDIA', 'AMD', or 'Intel'."
       exit
     fi
-    
+
+    if [ -z "$2" ]; then
+      echo "Missing required argument for OS Type. Please specify either 'ubuntu' or 'debian'."
+      exit
+    fi
+
     deps
     generate_kernel_params $1
     write_grub
-    make_configs
+    make_configs $2
     sudo update-grub
     sudo update-initramfs -k all -u
 
     echo "New Grub Config:"
     echo "$(cat /etc/default/grub |grep GRUB_CMDLINE_LINUX_DEFAULT)"
     echo " "
-    echo "/etc/initram-fs/modules:"
-    echo "$(cat /etc/initram-fs/modules)"
-    echo " "
-    echo "/etc/modprobe.d/local.conf:"
-    echo "$(cat /etc/modprobe.d/local.conf)"
+
+    if [ "$2" == "debian" ]; then
+        echo "/etc/initramfs-tools/modules:"
+        echo "$(cat /etc/initramfs-tools/modules)"
+        echo " "
+        echo "/etc/modprobe.d/blacklist.conf:"
+        echo "$(cat /etc/modprobe.d/blacklist.conf)"
+        echo " "
+        echo "/etc/modprobe.d/xhci_hcd.conf:"
+        echo "$(cat /etc/modprobe.d/chci_hcd.conf)"
+    fi
+
+    if [ "$2" == "ubuntu" ]; then
+        echo "/etc/initramfs-tools/modules:"
+        echo "$(cat /etc/initramfs-tools/modules)"
+        echo " "
+        echo "/etc/modprobe.d/local.conf:"
+        echo "$(cat /etc/modprobe.d/local.conf)"
+    fi
+
 }
 
 # reset our changes by deleting the configs we made and resetting grub
