@@ -32,9 +32,12 @@ Set up GPU passthrough on Debain &amp; Ubuntu hosts.
 3. Download and run `setup.sh`
 
     ```bash
-    # Set up GPU passthrough
-    bash setup.sh full_run NVIDIA
-
+    # Set up GPU passthrough for your distro
+    # ubuntu
+    bash setup.sh full NVIDIA ubuntu
+    # debian
+    bash setup.sh full NVIDIA debian
+    
     # Reset 
     bash setup.sh reset
     ```
