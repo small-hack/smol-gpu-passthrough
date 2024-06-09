@@ -109,7 +109,7 @@ This is a long-form explanation of the `setup.sh` script that explains the under
    - [SOURCE](https://leduccc.medium.com/simple-dgpu-passthrough-on-a-dell-precision-7450-ebe65b2e648e)
    
    ```bash
-   /bin/bash -c "curl -fsSL https://raw.githubusercontent.com/cloudymax/Scrap-Metal/main/virtual-machines/host-config-resources/iommu-groups.sh"
+   curl -fsSL "https://raw.githubusercontent.com/cloudymax/Scrap-Metal/main/virtual-machines/host-config-resources/iommu-groups.sh" | /bin/bash
    ```
    
    The output of the above script will list all IOMMU groups, as well as the PCI ID, a description of each of your PCI devices, and at the end of the line is the IOMMU ID that we require. You will need to find the group number that your graphics card belongs to, and the IOMMU IDs of each item in that group. In the case of the example blow, the IOMMU IDs we need are `10de:1f08`, `10de:10f9`, `10de:1ada`, and `10de:1adb`.
