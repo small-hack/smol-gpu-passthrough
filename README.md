@@ -157,19 +157,19 @@ In order to pass control of the GPU to the VM we will need to hand over control 
       vfio_iommu_type1
       vfio_pci
       vfio_virqfd
-      options vfio-pci ids=<your IOMMU IDs go here>
+      options vfio-pci ids=<someID,someOtherID>
       ```
    
    - edit/create `/etc/modprobe.d/blacklist.conf` (Debian), or `/etc/modprobe.d/local.conf` (Ubuntu)
       
       ```bash
-      options vfio-pci ids=<your IOMMU IDs go here>
+      options vfio-pci ids=<someID,someOtherID>
       ```
       
    - edit the `GRUB_CMDLINE_LINUX_DEFAULT` line of your `/etc/default/grub` file again to the following:
    
       ```bash
-      GRUB_CMDLINE_LINUX_DEFAULT="quiet preempt=voluntary iommu=pt amd_iommu=on intel_iommu=on vfio-pci.ids=<your IOMMU IDs go here> rd.driver.pre=vfio-pci video=efifb:off kvm.ignore_msrs=1 kvm.report_ignored_msrs=0
+      GRUB_CMDLINE_LINUX_DEFAULT="quiet preempt=voluntary iommu=pt amd_iommu=on intel_iommu=on vfio-pci.ids=<<someID,someOtherID> rd.driver.pre=vfio-pci video=efifb:off kvm.ignore_msrs=1 kvm.report_ignored_msrs=0"
       ```
   
    - Now run `sudo update-grub`, `sudo update-initramfs -u`, `sudo depmod -ae` and then reboot. (Required)
